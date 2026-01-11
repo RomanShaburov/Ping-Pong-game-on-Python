@@ -1,4 +1,5 @@
-This is a ping pong game.
+This is a ping pong game. 
+CAUTION game doesn't support English language, Russian languafe only
 It includes common ping pong and some mods for the game.
 The game is created only for entertainment purposes.
 I hope you enjoy playing it and leave feedback. 
