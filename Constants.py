@@ -18,8 +18,8 @@ paddleLeftSpeed = 10
 paddleRightSpeed = 10
 
 #Ball settings
-ballRadius = 10
-ballSpeed = 10
+ballRadius = 10#10
+ballSpeed = 10#10
 ballD = ballRadius*2
 dxStart = 1
 dyStart = 1
@@ -32,3 +32,6 @@ dy = -1
 Volume = 0.05
 gameMusicVol = 0.15
 menuMusicVol = 0.1
+
+#Bot settinge
+waitTimer = 45

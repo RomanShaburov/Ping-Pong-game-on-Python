@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 from Constants import *
 from Colors import *
 from Menu import Menu
@@ -149,7 +150,7 @@ boosters = []
 
 second_ball_active = False
 second_ball_end_time = 0
-second_ball_rect = None  # ← ДОБАВЬТЕ ЭТУ СТРОКУ
+second_ball_rect = None
 second_ball_dy = 0
 
 bullets = []
@@ -369,13 +370,26 @@ def musicVolUp():
     global menuMusicVol, gameMusicVol, Volume
     menuMusicVol = min(1.0, menuMusicVol + Volume)
     gameMusicVol = min(1.0, gameMusicVol + Volume)
+    pygame.mixer.Sound.play(menuSwitchSound)
     update_music_volume()
 
 def musicVolDown():
     global menuMusicVol, gameMusicVol, Volume
     menuMusicVol = max(0.0, menuMusicVol - Volume)
     gameMusicVol = max(0.0, gameMusicVol - Volume)
+    pygame.mixer.Sound.play(menuSwitchSound)
     update_music_volume()
+
+def resetScore():
+    global pointRight, pointLeft
+    pointRight = pointLeft = 0
+    pygame.mixer.Sound.play(menuSwitchSound)
+
+def resetBackground():
+    global backgroundPhoto
+    backgroundPhoto = pygame.image.load(resource_path("assets/images/background/TableTennis.png"))
+    backgroundPhoto = pygame.transform.scale(backgroundPhoto, (WIDTH, HEIGHT))
+    pygame.mixer.Sound.play(menuSwitchSound)
 
 def returnToMenu():
     global menu_flag, menu_flag_after, options_flag, help_flag, mods_flag, help_mod_menu_flag, help_mod_menu_flag1
@@ -416,6 +430,8 @@ options_menu = Menu(pixel_font_options, lightRed)
 options_menu.append_option("Вернуться в меню", returnToMenu)
 options_menu.append_option("Увеличить громкость музыки", musicVolUp)
 options_menu.append_option("Уменьшить громкость музыки", musicVolDown)
+options_menu.append_option("Обновить фон поля", resetBackground)
+options_menu.append_option("Сбросить счет", resetScore)
 
 mods_menu = Menu(pixel_font, white)
 mods_menu.append_option("Бомбы", lambda : mod_update("bomb_mode"))
@@ -706,10 +722,49 @@ while game:
                     paddleRight.top = 5
                 if paddleRight.bottom > HEIGHT:
                     paddleRight.bottom = HEIGHT - 5
-                if ball.centery > paddleRight.centery + 25:
-                    paddleRight.top += paddleRightSpeed
-                if ball.centery < paddleRight.centery - 25:
-                    paddleRight.top -= paddleRightSpeed
+
+
+                if mods["bullet_mode"]:
+                    dangerBullet = None
+                    bulletyDirection = 0
+                    waitTimer = 0
+                    if len(bullets) > 0 and dangerBullet is None:
+                        for bullet in bullets:
+                            if bullet.rect.right > GWIDTH * 0.85:
+                                dangerBullet = bullet
+                                bulletyDirection = -1 if bullet.dy < 0 else 1
+                                break
+                    if dangerBullet is not None:
+                        if ((dangerBullet.rect.bottom < paddleRight.top - 40) or (dangerBullet.rect.top > paddleRight.bottom + 40)) and dangerBullet.rect.right < GWIDTH * 0.7:# or bullet.rect.left > GWIDTH - 5:
+                            if ball.centery > paddleRight.centery + 25:
+                                paddleRight.top += paddleRightSpeed
+                            if ball.centery < paddleRight.centery - 25:
+                                paddleRight.top -= paddleRightSpeed
+                        else:
+                            if dangerBullet.rect.center[1] < 135 and paddleRight.centery < HEIGHT / 3:
+                                paddleRight.top += paddleRightSpeed
+                                # print("Уклоняюсь вниз (из за положения пули)")
+                                # pygame.time.wait(200)
+                            elif dangerBullet.rect.center[1] > HEIGHT - 135 and paddleRight.centery > HEIGHT * 0.67:
+                                paddleRight.top -= paddleRightSpeed
+                                # print("Уклоняюсь вверх (из за положения пули)")
+                                # pygame.time.wait(200)
+                            else:
+                                paddleRight.top += paddleRightSpeed * bulletyDirection * (-1)
+                                # print("Уклоняюсь противоположно пуле")
+                                # pygame.time.wait(200)
+
+
+                    else:
+                        if ball.centery > paddleRight.centery + 25:
+                            paddleRight.top += paddleRightSpeed
+                        if ball.centery < paddleRight.centery - 25:
+                            paddleRight.top -= paddleRightSpeed
+                else:
+                    if ball.centery > paddleRight.centery + 25:
+                        paddleRight.top += paddleRightSpeed
+                    if ball.centery < paddleRight.centery - 25:
+                        paddleRight.top -= paddleRightSpeed
 
             if key[pygame.K_w] and paddleLeft.top > 0:
                 paddleLeft.top -= paddleLeftSpeed
@@ -956,6 +1011,8 @@ while game:
                     if i < len(bullets):
                         del bullets[i]
 
+            for bullet in bullets:
+                bullets.remove(bullet)
             for bomb in bombs:
                 bombs.remove(bomb)
 
@@ -993,7 +1050,6 @@ while game:
         screen.blit(dxSpeed, (25, HEIGHT - 40))
         dySpeed = smallFont.render(f"s_y : {dy:.2f}", True, white)
         screen.blit(dySpeed, (25, HEIGHT - 20))
-
         # screenw = smallFont.render(f"W : {WIDTH}", True, white)
         # screen.blit(screenw, (WIDTH // 2, 40))
         # screenh = smallFont.render(f"H : {HEIGHT}", True, white)
@@ -1030,7 +1086,7 @@ pygame.quit()
 # Сделать оптимизацию (Сделано)
 # |
 # L добавить ограничения по FPS (Сделано)
-# Переписать игру через классы (мяч, игроки как минимум)
+# Переписать игру через классы (мяч, игроки как минимум) (Сделано)
 # Сделать меню - описание модов (Сделано)
 # Сделать моды (Сделано!!!)
 # |
@@ -1039,3 +1095,7 @@ pygame.quit()
 # L Изменение характеристик ракеток и мяча, пикапы, бустеры, бонусы и тп (Сделано)
 #                               L сделать моргание увеличенной части
 # Сделать так, чтобы защитник Defender не ругался
+# Сделать боту уклонение от пуль(Сделано базовое)
+# |
+# L Бот уклонятеся от пули (сделано)
+# L Бот вычисляет траекторрии полета пули + мяча и выбирает лучший вариант
