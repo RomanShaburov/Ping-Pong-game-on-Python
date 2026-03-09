@@ -1,5 +1,6 @@
 from Colors import *
 from random import *
+from Constants import *
 import pygame
 import math
 
@@ -53,8 +54,8 @@ class Bullet:
 
         # Проверяем, вышла ли пуля за пределы экрана
         if (self.rect.right < 0 or
-                self.rect.left > 1250 or
+                self.rect.left > WIDTH or
                 self.rect.bottom < 0 or
-                self.rect.top > 600):
+                self.rect.top > HEIGHT):
             return True  # Пулю нужно удалить
         return False
