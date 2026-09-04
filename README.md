@@ -7,6 +7,7 @@
 Если у вас есть идеи по созданию новых игр, буду рад их услышать.
 Обновлений у игры скорее всего не будет или они будут выходиь очень редко из-за учебы.
 Она содержит несколько незначительных багов, не влияющих на геймплей.
+В папке dist находится сама игра
 Хорошей игры! :)
 
 This is a ping pong game. 
@@ -15,6 +16,7 @@ It includes common ping pong and some mods for the game.
 The game is created only for entertainment purposes.
 I hope you enjoy playing it and leave feedback. 
 There will probably be no more updates, but it is possible that in the future I will create another small game.
+You can find exe-files in "dist" folder
 So, have fun! :)
 
 Игра написана на Python с помощью pygame и преобразована в exe файл с помощью pyinstaller 
